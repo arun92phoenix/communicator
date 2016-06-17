@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Communicator</title>
+
+</head>
+<body ng-app="Communicator">
+	<div ng-controller="MainCtrl">
+		{{participants}}
+		<select
+			ng-options="participant as participant for participant in participants" ng-model="to"></select>
+		<input type="text" ng-model="message"></input>
+		<button ng-click="sendMessage()">Send Message</button>
+		<br/>
+		Incoming Chats
+		<hr/>
+		<div ng-repeat="message in messages">{{message.from}} - {{message.message}}</div>
+	</div>
+	<script src="lib/angular/angular.min.js"></script>
+	<script src="lib/sockjs/sockjs.min.js"></script>
+	<script src="lib/stomp/stomp.min.js"></script>
+	<script src="js/app.js"></script>
+</body>
+
+</html>
