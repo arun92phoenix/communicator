@@ -4,60 +4,143 @@
 var app = angular.module('Communicator', []);
 
 app.service('Notifier', function() {
+	var isWindowActive = true;
+
 	if (Notification.permission !== "granted")
 		Notification.requestPermission();
 
-	this.notify = function(from, message) {
+	window.onfocus = function() {
+		isWindowActive = true;
+	}
+
+	window.onblur = function() {
+		isWindowActive = false;
+	}
+
+	this.notify = function(from, message, closeHandler) {
+		if (isWindowActive) {
+			return;
+		}
+
 		if (Notification.permission == "granted") {
 			var notification = new Notification(from, {
 				body : message
 			});
 
 			notification.onclick = function() {
-				alert('Closed');
+				closeHandler(from);
+				this.close();
 			};
 		}
 	}
 });
 
-app.controller('MainCtrl', [ '$scope', 'Notifier', function($scope, Notifier) {
-	var stompClient = Stomp.over(new SockJS('/communicate'));
+app
+		.controller(
+				'MainCtrl',
+				[
+						'$scope',
+						'Notifier',
+						'$timeout',
+						function($scope, Notifier, $timeout) {
+							var stompClient = Stomp.over(new SockJS(
+									'/communicate'));
 
-	$scope.messages = [];
-	$scope.participants = [];
+							$scope.messages = {};
+							$scope.unreadCount = {};
+							$scope.participants = [];
 
-	function updateParticipants(message) {
-		var participants = JSON.parse(message.body);
+							var messagesBox = document
+									.getElementById('messages-box');
 
-		$scope.$evalAsync(function() {
-			$scope.participants = participants;
-		});
-	}
+							$scope.updateParticipants = function(message) {
+								var participants = JSON.parse(message.body);
 
-	stompClient.connect({}, function() {
-		stompClient.subscribe('/user/receive', function(message) {
-			message = JSON.parse(message.body);
-			Notifier.notify(message.from, message.message);
-			$scope.$evalAsync(function() {
-				$scope.messages.push(message);
-			});
-		});
+								$scope.$evalAsync(function() {
+									$scope.participants = participants;
+								});
 
-		stompClient.subscribe('/update.participants', function(message) {
-			updateParticipants(message);
-		});
+								if ($scope.selectedParticipant
+										&& participants
+												.indexOf($scope.selectedParticipant) == -1) {
+									$scope.selectedParticipant = null;
+								}
+							}
 
-		stompClient.subscribe('/participants', function(message) {
-			updateParticipants(message);
-		})
-	});
+							stompClient.connect({}, function() {
+								stompClient.subscribe('/user/receive',
+										function(message) {
+											message = JSON.parse(message.body);
 
-	$scope.sendMessage = function() {
-		var message = {
-			'message' : $scope.message
-		};
+											Notifier.notify(message.from,
+													message.message,
+													$scope.showChat);
+											$scope.$evalAsync(function() {
+												$scope.addToMessages(message,
+														message.from);
+											});
+										});
 
-		stompClient.send('/send.to.' + $scope.to, {}, JSON.stringify(message));
-		$scope.message = '';
-	}
-} ]);
+								stompClient.subscribe('/update.participants',
+										function(message) {
+											$scope.updateParticipants(message);
+										});
+
+								stompClient.subscribe('/participants',
+										function(message) {
+											$scope.updateParticipants(message);
+										})
+							});
+
+							$scope.sendMessage = function() {
+								var message = {
+									'message' : $scope.message,
+									'own' : true
+								};
+
+								stompClient.send('/send.to.'
+										+ $scope.selectedParticipant, {}, JSON
+										.stringify(message));
+
+								$scope.addToMessages(message,
+										$scope.selectedParticipant)
+								$scope.message = '';
+							}
+
+							$scope.showChat = function(participant) {
+								$scope.selectedParticipant = participant;
+								$scope.unreadCount[participant] = 0;
+								$timeout(function() {
+									document.getElementById('chat-input')
+											.focus();
+								});
+
+							}
+
+							$scope.addToMessages = function(message,
+									participant) {
+								message.time = new Date();
+								if (!$scope.messages[participant]) {
+									$scope.messages[participant] = [];
+								}
+
+								if ($scope.selectedParticipant != participant) {
+
+									if (!$scope.unreadCount[participant]) {
+										$scope.unreadCount[participant] = 0;
+									}
+
+									$scope.unreadCount[participant]++;
+								}
+
+								$scope.messages[participant].push(message);
+
+								// Letting the messages bind and show before
+								// adjusting the
+								// scroll height
+								$timeout(function() {
+									messagesBox.scrollTop = messagesBox.scrollHeight;
+								});
+
+							}
+						} ]);

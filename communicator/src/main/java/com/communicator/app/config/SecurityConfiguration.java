@@ -21,7 +21,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.csrf().disable().formLogin().loginPage("/index.html").loginProcessingUrl("/login")
 				.defaultSuccessUrl("/communicate.html").permitAll().and().authorizeRequests()
 				.antMatchers("/index.html", "/lib/**").permitAll().anyRequest().authenticated().and().logout()
-				.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler).logoutSuccessUrl("/index.html");
+				.logoutSuccessHandler(logoutSuccessHandler);
 	}
 
 	@Autowired

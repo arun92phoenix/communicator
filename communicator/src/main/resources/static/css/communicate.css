@@ -1,0 +1,113 @@
+@CHARSET "UTF-8";
+
+#loginForm {
+	width: 100%;
+	text-align: center;
+	margin-top: 200px;
+}
+
+#loginForm input {
+	font-size: 20px;
+	border: 2px solid #AEAEAE;
+	width: 400px;
+	padding: 10px;
+}
+
+.main-container {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+}
+
+.participant-list {
+	width: 300px;
+	height: 100%;
+	border-right: 1px solid #d3d3d3;
+	display: inline-block;
+}
+
+.participant-list-header {
+	border-bottom: 1px solid #d3d3d3;
+	padding: 15px;
+	margin-bottom: 0px;
+}
+
+.participant {
+	padding: 15px;
+	border-bottom: 1px solid #d3d3d3;
+	cursor: pointer;
+}
+
+.participant:hover, .participant.active {
+	background-color: #d3d3d3;
+}
+
+.chat-container {
+	display: inline-block;
+	height: 100%;
+	vertical-align: top;
+	width: calc(100% - 315px);
+}
+
+.chat-input {
+	padding: 5px;
+	bottom: 0px;
+	width: 100%;
+}
+
+.chat-input input {
+	padding: 10px;
+	width: calc(100% - 30px);
+}
+
+.chat-header {
+	border-bottom: 1px solid #d3d3d3;
+	padding: 15px;
+	margin-bottom: 0px;
+}
+
+.chat-messages {
+	overflow: auto;
+	height: calc(100% - 130px);
+}
+
+.chat-message {
+	padding: 8px;
+	border-radius: 5px;
+	background-color: #ECEFF1;
+	border: 1px solid #d3d3d3;
+	min-width: 300px;
+	margin: 10px 0px;
+	display: inline-block;
+	word-wrap: break-word;
+	max-width: 95%;
+}
+
+.no-selection-message {
+	width: 100%;
+	text-align: center;
+	padding-top: 200px;
+	color: #AEAEAE;
+}
+
+.badge {
+	padding: 0px 10px;
+	border-radius: 15px;
+	background-color: #AEAEAE;
+	color: white;
+	float: right;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak,
+	.x-ng-cloak {
+	display: none !important;
+}
+
+.chat-time {
+	font-style: italic;
+	color: #AEAEAE;
+	font-size: x-small;
+	padding: 0px 5px;
+}

@@ -23,6 +23,7 @@ public class LogoutSuccessHandler
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth)
 			throws IOException, ServletException {
 		communicatorService.removeParticipant(auth.getName());
+		response.sendRedirect("/index.html");
 	}
 
 }
