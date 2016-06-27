@@ -16,6 +16,12 @@ http://<<server_ip/hostname>>/index.html
 
 The default port used will be 8080. Refer to the [this link](http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#howto-change-the-http-port) on how the default port can be changed.
 
-## Features
+## Minimun Requirements
+
+Java Runtime Environment 1.7 or higher is needed to run Communicator. 
+
+The communication with the server (both from and to) happens with Websockets. SockJS is being used to provide a fallback mechanism in browsers where websockets are not supported but this feature is not fully tested yet.
+
+## Release Notes
  - [Release notes of Version 1.0.0](https://github.com/arun92phoenix/communicator/releases/tag/v1.0.0)
  
