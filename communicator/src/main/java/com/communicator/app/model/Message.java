@@ -1,5 +1,11 @@
 package com.communicator.app.model;
 
+/**
+ * Model class for message.
+ * 
+ * @author pavan
+ *
+ */
 public class Message {
 	String from;
 	String message;

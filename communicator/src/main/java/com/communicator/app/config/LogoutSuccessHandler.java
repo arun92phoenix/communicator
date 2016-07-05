@@ -12,6 +12,13 @@ import org.springframework.stereotype.Component;
 
 import com.communicator.app.services.CommunicatorService;
 
+/**
+ * Handler for successful logout. The logged in user is removed from the list of
+ * participants and will be published to all the other participants.
+ * 
+ * @author pavan
+ *
+ */
 @Component
 public class LogoutSuccessHandler
 		implements org.springframework.security.web.authentication.logout.LogoutSuccessHandler {
@@ -22,7 +29,11 @@ public class LogoutSuccessHandler
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth)
 			throws IOException, ServletException {
+
+		// Remove the participant from list of participants
 		communicatorService.removeParticipant(auth.getName());
+
+		// Redirect the user to the login page.
 		response.sendRedirect("/index.html");
 	}
 
