@@ -10,12 +10,22 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
+/**
+ * Security configuration
+ * 
+ * @author pavan
+ *
+ */
+
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	LogoutSuccessHandler logoutSuccessHandler;
 
+	/**
+	 * Configuration of security. Form login.
+	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().formLogin().loginPage("/index.html").loginProcessingUrl("/login")
@@ -24,6 +34,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.logoutSuccessHandler(logoutSuccessHandler);
 	}
 
+	/**
+	 * Method to configure authentication. This method ensures everyone can
+	 * login by just providing name. No password is needed.
+	 * 
+	 * @param auth
+	 * @throws Exception
+	 */
 	@Autowired
 	protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.authenticationProvider(new AuthenticationProvider() {

@@ -1,7 +1,8 @@
 /**
  * 
  */
-var app = angular.module('Communicator', []);
+
+var app = angular.module('Communicator', ['ngSanitize']);
 
 app.service('Notifier', function() {
 	var isWindowActive = true;
@@ -32,6 +33,19 @@ app.service('Notifier', function() {
 				this.close();
 			};
 		}
+	}
+});
+
+app.filter('highlight', function() {
+	return function(input, highlight) {
+		var retStr = input;
+		if (highlight) {
+			retStr = input.replace(new RegExp(highlight, 'g'),
+					'<span class="highlight">' + highlight + '</span>');
+		}
+
+		return retStr;
+
 	}
 });
 
@@ -119,11 +133,21 @@ app
 
 							$scope.addToMessages = function(message,
 									participant) {
+
+								// Addding the message to the list
 								message.time = new Date();
 								if (!$scope.messages[participant]) {
 									$scope.messages[participant] = [];
 								}
 
+								$scope.messages[participant].push(message);
+
+								// Moving the message to the top
+								$scope.participants.splice($scope.participants
+										.indexOf(participant), 1);
+								$scope.participants.unshift(participant);
+
+								// Updating the unread count
 								if ($scope.selectedParticipant != participant) {
 
 									if (!$scope.unreadCount[participant]) {
@@ -133,8 +157,6 @@ app
 									$scope.unreadCount[participant]++;
 								}
 
-								$scope.messages[participant].push(message);
-
 								// Letting the messages bind and show before
 								// adjusting the
 								// scroll height
@@ -143,4 +165,19 @@ app
 								});
 
 							}
+
+							$scope.$watch('unreadCount', function(n) {
+								var totalUnreadCount = 0;
+								for (p in n) {
+									totalUnreadCount = totalUnreadCount
+											+ $scope.unreadCount[p];
+								}
+
+								if (totalUnreadCount != 0) {
+									document.title = '(' + totalUnreadCount
+											+ ') Communicator';
+								} else {
+									document.title = 'Communicator';
+								}
+							}, true);
 						} ]);
