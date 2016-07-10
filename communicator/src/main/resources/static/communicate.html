@@ -26,10 +26,10 @@
 				<h2 class="participant-list-header">{{selectedParticipant}}</h2>
 				<div class="chat-messages" id="messages-box">
 					<div ng-repeat="message in messages[selectedParticipant]"
-						align="{{message.own?'right':''}}">
-						<div class="chat-message">
+						align="{{getAlignment(message.type)}}">
+						<div
+							ng-class="message.type=='unread'?'unread-notification':'chat-message'">
 							<span>{{message.message}}</span>
-
 						</div>
 						<div class="chat-time">
 							<span>{{message.time | date:'shortTime'}}</span>
