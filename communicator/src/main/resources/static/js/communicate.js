@@ -120,6 +120,7 @@ app
 								$scope.addToMessages(message,
 										$scope.selectedParticipant)
 								$scope.message = '';
+								$scope.removeUnreadNotification($scope.selectedParticipant);
 							}
 
 							$scope.showChat = function(participant) {
@@ -211,24 +212,27 @@ app
 								}
 							}
 
-							$scope
-									.$watch(
-											'selectedParticipant',
-											function(n, o) {
-												debugger;
+							$scope.removeUnreadNotification = function(o) {
+								if ($scope.unreadMessageNotifications[o] != null
+										&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
+									$scope.messages[o]
+											.splice(
+													$scope.unreadMessageNotifications[o],
+													1);
+									delete $scope.unreadMessageNotifications[o];
+								}
+							}
 
-												if (!o) {
-													return;
-												}
+							$scope.$watch('selectedParticipant',
+									function(n, o) {
+										debugger;
 
-												if ($scope.unreadMessageNotifications[o] != null
-														&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
-													$scope.messages[o]
-															.splice(
-																	$scope.unreadMessageNotifications[o],
-																	1);
-													delete $scope.unreadMessageNotifications[o];
-												}
-											});
+										if (!o) {
+											return;
+										}
+
+										$scope.removeUnreadNotification(o);
+
+									});
 
 						} ]);
