@@ -1,22 +1,22 @@
 /**
  * 
  */
+var isWindowActive = true;
 
-var app = angular.module('Communicator', ['ngSanitize']);
+window.onfocus = function() {
+	isWindowActive = true;
+}
+
+window.onblur = function() {
+	isWindowActive = false;
+}
+
+var app = angular.module('Communicator', [ 'ngSanitize' ]);
 
 app.service('Notifier', function() {
-	var isWindowActive = true;
 
 	if (Notification.permission !== "granted")
 		Notification.requestPermission();
-
-	window.onfocus = function() {
-		isWindowActive = true;
-	}
-
-	window.onblur = function() {
-		isWindowActive = false;
-	}
 
 	this.notify = function(from, message, closeHandler) {
 		if (isWindowActive) {
@@ -63,6 +63,7 @@ app
 							$scope.messages = {};
 							$scope.unreadCount = {};
 							$scope.participants = [];
+							$scope.unreadMessageNotifications = {};
 
 							var messagesBox = document
 									.getElementById('messages-box');
@@ -109,7 +110,7 @@ app
 							$scope.sendMessage = function() {
 								var message = {
 									'message' : $scope.message,
-									'own' : true
+									'type' : 'own'
 								};
 
 								stompClient.send('/send.to.'
@@ -124,12 +125,19 @@ app
 							$scope.showChat = function(participant) {
 								$scope.selectedParticipant = participant;
 								$scope.unreadCount[participant] = 0;
+								$scope.scrollToEnd();
 								$timeout(function() {
 									document.getElementById('chat-input')
 											.focus();
 								});
 
 							}
+
+							$scope.scrollToEnd = function() {
+								$timeout(function() {
+									messagesBox.scrollTop = messagesBox.scrollHeight;
+								});
+							};
 
 							$scope.addToMessages = function(message,
 									participant) {
@@ -140,29 +148,39 @@ app
 									$scope.messages[participant] = [];
 								}
 
-								$scope.messages[participant].push(message);
-
 								// Moving the message to the top
 								$scope.participants.splice($scope.participants
 										.indexOf(participant), 1);
 								$scope.participants.unshift(participant);
 
 								// Updating the unread count
-								if ($scope.selectedParticipant != participant) {
+								if ($scope.selectedParticipant != participant
+										|| !isWindowActive) {
 
 									if (!$scope.unreadCount[participant]) {
 										$scope.unreadCount[participant] = 0;
 									}
 
 									$scope.unreadCount[participant]++;
+
+									if ($scope.unreadMessageNotifications[participant] == null) {
+										$scope.messages[participant].push({
+											type : 'unread',
+											message : 'Unread Messages'
+										});
+
+										$scope.unreadMessageNotifications[participant] = $scope.messages[participant].length - 1;
+										$scope.scrollToEnd();
+									}
+
 								}
 
-								// Letting the messages bind and show before
-								// adjusting the
-								// scroll height
-								$timeout(function() {
-									messagesBox.scrollTop = messagesBox.scrollHeight;
-								});
+								$scope.messages[participant].push(message);
+
+								if ($scope.selectedParticipant == participant
+										&& isWindowActive) {
+									$scope.scrollToEnd();
+								}
 
 							}
 
@@ -180,4 +198,37 @@ app
 									document.title = 'Communicator';
 								}
 							}, true);
+
+							$scope.getAlignment = function(type) {
+
+								switch (type) {
+								case 'own':
+									return 'right';
+								case 'unread':
+									return 'center';
+								default:
+									return '';
+								}
+							}
+
+							$scope
+									.$watch(
+											'selectedParticipant',
+											function(n, o) {
+												debugger;
+
+												if (!o) {
+													return;
+												}
+
+												if ($scope.unreadMessageNotifications[o] != null
+														&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
+													$scope.messages[o]
+															.splice(
+																	$scope.unreadMessageNotifications[o],
+																	1);
+													delete $scope.unreadMessageNotifications[o];
+												}
+											});
+
 						} ]);
