@@ -131,6 +131,10 @@ app
 											.focus();
 								});
 
+								$timeout(function() {
+									$scope.clearUnreadMessage(participant);
+								}, 5000);
+
 							}
 
 							$scope.scrollToEnd = function() {
@@ -211,24 +215,26 @@ app
 								}
 							}
 
-							$scope
-									.$watch(
-											'selectedParticipant',
-											function(n, o) {
-												debugger;
+							$scope.clearUnreadMessage = function(o) {
+								if ($scope.unreadMessageNotifications[o] != null
+										&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
+									$scope.messages[o]
+											.splice(
+													$scope.unreadMessageNotifications[o],
+													1);
+									delete $scope.unreadMessageNotifications[o];
+								}
+							}
 
-												if (!o) {
-													return;
-												}
+							$scope.$watch('selectedParticipant',
+									function(n, o) {
+										debugger;
 
-												if ($scope.unreadMessageNotifications[o] != null
-														&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
-													$scope.messages[o]
-															.splice(
-																	$scope.unreadMessageNotifications[o],
-																	1);
-													delete $scope.unreadMessageNotifications[o];
-												}
-											});
+										if (!o) {
+											return;
+										}
+										$scpoe.clearUnreadMessage(o);
+
+									});
 
 						} ]);

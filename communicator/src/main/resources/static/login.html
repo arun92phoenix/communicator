@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html ng-app="Communicator">
+<head>
+<meta charset="UTF-8">
+<title>Communicator - Login</title>
+<link href="css/communicate.css" rel="stylesheet" type="text/css" />
+<script src="lib/angular/angular.min.js"></script>
+<script src="js/login.js"></script>
+</head>
+<body>
+	<div ng-controller='LoginCtrl' style="width: 100%">
+		<form method="post" action="login" id="loginForm">
+			<span>Please enter your name to proceed!</span><br /> <br /> <input
+				type="text" id="username" name="username" ng-model="name"
+				placeholder="Enter Your Name!" required="required" /> <input
+				type="text" id="password" name="password" ng-model="name"
+				style="display: none" />
+			<button type="submit" ng-disabled="!name || name==''"
+				style="display: none">Enter!</button>
+		</form>
+	</div>
+</body>
+</html>
