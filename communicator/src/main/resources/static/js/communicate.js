@@ -132,6 +132,10 @@ app
 											.focus();
 								});
 
+								$timeout(function() {
+									$scope.clearUnreadMessage(participant);
+								}, 5000);
+
 							}
 
 							$scope.scrollToEnd = function() {
@@ -212,7 +216,8 @@ app
 								}
 							}
 
-							$scope.removeUnreadNotification = function(o) {
+
+							$scope.clearUnreadMessage = function(o) {
 								if ($scope.unreadMessageNotifications[o] != null
 										&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
 									$scope.messages[o]
@@ -231,7 +236,7 @@ app
 											return;
 										}
 
-										$scope.removeUnreadNotification(o);
+										$scpoe.clearUnreadMessage(o);
 
 									});
 

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.communicator</groupId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 
 	<name>communicator</name>
 	<description>Communicator</description>
@@ -54,4 +54,10 @@
 
 
 	<artifactId>communicator</artifactId>
+	<scm>
+		<url>https://github.com/arun92phoenix/communicator</url>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/arun92phoenix/communicator/issues</url>
+	</issueManagement>
 </project>
