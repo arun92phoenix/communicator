@@ -7,9 +7,9 @@
 }
 
 #loginForm input {
-	font-size: 20px;
+	font-size: 11px;
 	border: 2px solid #AEAEAE;
-	width: 400px;
+	width: 225px;
 	padding: 10px;
 }
 
@@ -130,4 +130,9 @@
 	text-align: center;
 	padding: 5px 0px;
 	margin-top: 10px;
+}
+
+.error {
+	font-size: 14px;
+	color: #FF0000;
 }
