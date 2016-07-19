@@ -23,6 +23,7 @@ Java Runtime Environment 1.7 or higher is needed to run Communicator.
 The communication with the server (both from and to) happens with Websockets. SockJS is being used to provide a fallback mechanism in browsers where websockets are not supported but this feature is not fully tested yet.
 
 ## Release Notes
+ - [Release notes of Version 1.2.1](https://github.com/arun92phoenix/communicator/releases/tag/v1.2.1)
  - [Release notes of Version 1.2.0](https://github.com/arun92phoenix/communicator/releases/tag/v1.2.0)
  - [Release notes of Version 1.1.0](https://github.com/arun92phoenix/communicator/releases/tag/v1.1.0)
  - [Release notes of Version 1.0.0](https://github.com/arun92phoenix/communicator/releases/tag/v1.0.0)
