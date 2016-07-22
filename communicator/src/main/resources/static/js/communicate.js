@@ -2,6 +2,7 @@
  * 
  */
 var isWindowActive = true;
+var isNotificationAvailable = false;
 
 window.onfocus = function() {
 	isWindowActive = true;
@@ -15,11 +16,15 @@ var app = angular.module('Communicator', [ 'ngSanitize' ]);
 
 app.service('Notifier', function() {
 
-	if (Notification.permission !== "granted")
+	if (Notification) {
+		isNotificationAvailable = true;
+	}
+
+	if (isNotificationAvailable && Notification.permission !== "granted")
 		Notification.requestPermission();
 
 	this.notify = function(from, message, closeHandler) {
-		if (isWindowActive) {
+		if (isWindowActive || !isNotificationAvailable) {
 			return;
 		}
 
@@ -228,8 +233,6 @@ app
 
 							$scope.$watch('selectedParticipant',
 									function(n, o) {
-										debugger;
-
 										if (!o) {
 											return;
 										}
