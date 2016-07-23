@@ -2,8 +2,16 @@
 
 #loginForm {
 	width: 100%;
+	margin-top: 100px;
 	text-align: center;
-	margin-top: 200px;
+}
+
+#loginForm>div {
+	width: 300px;
+	background-color: #EAEAEA;
+	text-align: center;
+	margin: 0 auto;
+	padding:10px;
 }
 
 #loginForm input {
@@ -36,7 +44,7 @@
 
 .participant {
 	padding: 15px;
-	border-bottom: 1px solid #d3d3d3;
+	border-top: 1px solid #d3d3d3;
 	cursor: pointer;
 }
 
@@ -113,7 +121,7 @@
 }
 
 .participant-filter {
-	width: 265px;
+	width: 260px;
 	margin: 5px;
 	padding: 10px;
 }
@@ -135,4 +143,20 @@
 .error {
 	font-size: 14px;
 	color: #FF0000;
+}
+
+.add-option {
+	padding: 15px;
+	border-top: 1px solid #d3d3d3;
+	border-bottom: 1px solid #d3d3d3;
+}
+
+.add-user {
+	padding: 5px;
+}
+
+button {
+	padding: 10px;
+	border-radius: 0px;
+	background-color: #AEAEAE;
 }

@@ -61,7 +61,8 @@ app
 						'$scope',
 						'Notifier',
 						'$timeout',
-						function($scope, Notifier, $timeout) {
+						'$http',
+						function($scope, Notifier, $timeout, $http) {
 							var stompClient = Stomp.over(new SockJS(
 									'/communicate'));
 
@@ -69,6 +70,7 @@ app
 							$scope.unreadCount = {};
 							$scope.participants = [];
 							$scope.unreadMessageNotifications = {};
+							$scope.showAddUser = false;
 
 							var messagesBox = document
 									.getElementById('messages-box');
@@ -125,7 +127,8 @@ app
 								$scope.addToMessages(message,
 										$scope.selectedParticipant)
 								$scope.message = '';
-								$scope.removeUnreadNotification($scope.selectedParticipant);
+								$scope
+										.removeUnreadNotification($scope.selectedParticipant);
 							}
 
 							$scope.showChat = function(participant) {
@@ -221,7 +224,6 @@ app
 								}
 							}
 
-
 							$scope.clearUnreadMessage = function(o) {
 								if ($scope.unreadMessageNotifications[o] != null
 										&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
@@ -240,7 +242,18 @@ app
 										}
 
 										$scpoe.clearUnreadMessage(o);
-
 									});
+
+							$scope.addParticipant = function() {
+								$http.post('/users/add', $scope.newuser).then(
+										function() {
+											alert("User Added Successfully!");
+											$scope.showAddUser = false;
+										},
+										function(error) {
+											alert("Failed to add user. "
+													+ error.data.message);
+										});
+							}
 
 						} ]);
