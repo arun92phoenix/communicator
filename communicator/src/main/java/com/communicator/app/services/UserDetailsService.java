@@ -1,7 +1,9 @@
 package com.communicator.app.services;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,11 +26,15 @@ import org.springframework.stereotype.Service;
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
 	Properties users = new Properties();
+	private Resource resource;
+	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Autowired
 	public UserDetailsService(ResourceLoader resourceLoader) {
 		// Load Users into memory
-		loadUsers(resourceLoader);
+		resource = resourceLoader.getResource("classpath:users.properties");
+		loadUsers();
+
 	}
 
 	/**
@@ -35,10 +42,10 @@ public class UserDetailsService implements org.springframework.security.core.use
 	 * 
 	 * @param resourceLoader
 	 */
-	private void loadUsers(ResourceLoader resourceLoader) {
+	private void loadUsers() {
 		try {
 			// Loading the users into memory
-			Resource resource = resourceLoader.getResource("classpath:users.properties");
+
 			users.load(resource.getInputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -84,6 +91,30 @@ public class UserDetailsService implements org.springframework.security.core.use
 			return authority;
 		}
 
+	}
+
+	/**
+	 * Adds a new user
+	 * 
+	 * @param params
+	 */
+	public void addParticipant(Map<String, String> params) {
+		String username = params.get("username");
+		String password = params.get("password");
+
+		// Check if user already exists
+		if (users.containsKey(username)) {
+			throw new RuntimeException("User Already Exists!");
+		} else if (password == null || password.equals("")) {
+			throw new RuntimeException("Password cannot be blank!");
+		} else {
+			try {
+				users.put(username, passwordEncoder.encode(password));
+				users.store(new FileOutputStream(resource.getFile()), null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
