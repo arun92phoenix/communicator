@@ -70,7 +70,7 @@ app
 							$scope.unreadCount = {};
 							$scope.participants = [];
 							$scope.unreadMessageNotifications = {};
-							$scope.showAddUser = false;
+							$scope.window = 'PARTICIPANTS';
 
 							var messagesBox = document
 									.getElementById('messages-box');
@@ -245,15 +245,41 @@ app
 									});
 
 							$scope.addParticipant = function() {
+								if ($scope.newuser.password != $scope.newuser.confirmPassword) {
+									alert('New Password and Confirm New Password should match!');
+									return;
+								}
 								$http.post('/users/add', $scope.newuser).then(
 										function() {
 											alert("User Added Successfully!");
-											$scope.showAddUser = false;
+											$scope.window = 'PARTICIPANTS';
+											$scope.newuser = {};
 										},
 										function(error) {
 											alert("Failed to add user. "
 													+ error.data.message);
 										});
-							}
+							};
+
+							$scope.changePassword = function() {
+								if ($scope.changepass.newPassword != $scope.changepass.confirmNewPassword) {
+									alert('New Password and Confirm New Password should match!');
+									return;
+								}
+
+								$http
+										.post('/users/changepassword',
+												$scope.changepass)
+										.then(
+												function() {
+													alert("Password Changed Successfully!");
+													$scope.window = 'PARTICIPANTS';
+													$scope.newpass = {};
+												},
+												function(error) {
+													alert("Failed to change password. "
+															+ error.data.message);
+												});
+							};
 
 						} ]);

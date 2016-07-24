@@ -10,10 +10,12 @@
 		<div class="main-container">
 			<div class="participant-list" ng-cloak>
 				<div style="float: right; padding: 5px">
+					<a href="#" ng-click="window='CHANGE_PASSWORD'">Change Password</a>&nbsp;
 					<a href="/logout">Close</a>
 				</div>
-				<h2 class="participant-list-header">Participants</h2>
-				<div ng-hide="showAddUser">
+				<h2 class="participant-list-header"
+					ng-hide="window=='CHANGE_PASSWORD'">Participants</h2>
+				<div ng-show="window=='PARTICIPANTS'">
 					<input ng-model="participantFilter" class="participant-filter"
 						placeholder="Search Participants.." />
 					<div ng-repeat="participant in participants" class="participant"
@@ -24,10 +26,10 @@
 						<div class="badge" ng-show="unreadCount[participant]>0">{{unreadCount[participant]}}</div>
 					</div>
 					<div class="add-option">
-						<a href="#" ng-click="showAddUser=true">+ New Participant</a>
+						<a href="#" ng-click="window='NEW_USER'">+ New Participant</a>
 					</div>
 				</div>
-				<div ng-show="showAddUser" class="add-user">
+				<div ng-show="window=='NEW_USER'" class="add-user">
 					<form ng-submit="addParticipant()">
 						<div>
 							<h4>Add New Participant</h4>
@@ -37,12 +39,41 @@
 								class="participant-filter" required="required" />
 						</div>
 						<div>
-							<input placeholder="password" ng-model="newuser.password"
+							<input placeholder="New Password" ng-model="newuser.password"
+								type="password" class="participant-filter" required="required" />
+						</div>
+						<div>
+							<input placeholder="Confirm New Password" ng-model="newuser.confirmPassword"
 								type="password" class="participant-filter" required="required" />
 						</div>
 						<br />
 						<div>
 							<button type="submit">Add Participant</button>
+							<button ng-click="window='PARTICIPANTS'">Cancel</button>
+						</div>
+					</form>
+				</div>
+				<div ng-show="window=='CHANGE_PASSWORD'" class="add-user">
+					<form ng-submit="changePassword()">
+						<div>
+							<h4>Change Password</h4>
+						</div>
+						<div>
+							<input placeholder="Old Password" ng-model="changepass.oldPassword"
+								type="password" class="participant-filter" required="required" />
+						</div>
+						<div>
+							<input placeholder="Password" ng-model="changepass.newPassword"
+								type="password" class="participant-filter" required="required" />
+						</div>
+						<div>
+							<input placeholder="Confirm New Password" ng-model="changepass.confirmNewPassword"
+								type="password" class="participant-filter" required="required" />
+						</div>
+						<br />
+						<div>
+							<button type="submit">Change Password</button>
+							<button ng-click="window='PARTICIPANTS'">Cancel</button>
 						</div>
 					</form>
 				</div>
