@@ -1,6 +1,7 @@
 package com.communicator.app.web;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,14 @@ public class UserController {
 		String oldPassword = params.get("oldPassword");
 		String newPassword = params.get("newPassword");
 		userDetailsService.changePassword(oldPassword, newPassword);
+	}
+
+	/**
+	 * Returns list of users logged into the system.
+	 * @return 
+	 */
+	@RequestMapping("/list")
+	public Set<Object> getParticipants() {
+		return userDetailsService.getParticipants();
 	}
 }

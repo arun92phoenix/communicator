@@ -3,7 +3,9 @@ package com.communicator.app.services;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -143,6 +145,20 @@ public class UserDetailsService implements org.springframework.security.core.use
 			// Else, throw an exception.
 			throw new RuntimeException("Invalid Old Password!");
 		}
+	}
+
+	/**
+	 * Returns the list of users in the system apart from the logged in one.
+	 * 
+	 * @return
+	 */
+	public Set<Object> getParticipants() {
+		Set<Object> participants = new HashSet<>(users.keySet());
+
+		// Remove logged in user from the list of participants.
+		participants.remove(SecurityContextHolder.getContext().getAuthentication().getName());
+
+		return participants;
 
 	}
 
