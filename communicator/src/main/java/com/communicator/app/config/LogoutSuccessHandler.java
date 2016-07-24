@@ -31,7 +31,8 @@ public class LogoutSuccessHandler
 			throws IOException, ServletException {
 
 		// Remove the participant from list of participants
-		communicatorService.removeParticipant(auth.getName());
+		// communicatorService.removeParticipant(auth.getName());
+		// TODO: Add code to update login status
 
 		// Redirect the user to the login page.
 		response.sendRedirect("/index.html");

@@ -23,8 +23,9 @@ public class LoginSuccessHandler implements ApplicationListener<AuthenticationSu
 
 	@Override
 	public void onApplicationEvent(AuthenticationSuccessEvent event) {
-		//Add the participant to the list of participants
-		communicatorService.addParticipant(event.getAuthentication().getName());
+		// Add the participant to the list of participants
+		// communicatorService.addParticipant(event.getAuthentication().getName());
+		// TODO: Add code to update logged in status.
 	}
 
 }

@@ -1,13 +1,11 @@
 package com.communicator.app.web;
 
 import java.security.Principal;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 import com.communicator.app.model.Message;
@@ -36,16 +34,6 @@ public class CommunicatorController {
 	public void sendMessage(@Payload Message message, @DestinationVariable("username") String username,
 			Principal principal) {
 		communicatorService.deliverMessage(principal.getName(), username, message);
-	}
-
-	/**
-	 * Returns the list of participants.
-	 * 
-	 * @return
-	 */
-	@SubscribeMapping("/participants")
-	public Set<String> getParticipants() {
-		return communicatorService.getParticipants();
 	}
 
 }

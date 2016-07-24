@@ -75,18 +75,17 @@ app
 							var messagesBox = document
 									.getElementById('messages-box');
 
-							$scope.updateParticipants = function(message) {
-								var participants = JSON.parse(message.body);
-
-								$scope.$evalAsync(function() {
-									$scope.participants = participants;
-								});
-
-								if ($scope.selectedParticipant
-										&& participants
-												.indexOf($scope.selectedParticipant) == -1) {
-									$scope.selectedParticipant = null;
-								}
+							$scope.updateParticipants = function() {
+								$http
+										.get('/users/list')
+										.then(
+												function(data) {
+													$scope.participants = data.data;
+												},
+												function(error) {
+													alert("Failed to get participant list. "
+															+ error.data.message);
+												});
 							}
 
 							stompClient.connect({}, function() {
@@ -103,15 +102,6 @@ app
 											});
 										});
 
-								stompClient.subscribe('/update.participants',
-										function(message) {
-											$scope.updateParticipants(message);
-										});
-
-								stompClient.subscribe('/participants',
-										function(message) {
-											$scope.updateParticipants(message);
-										})
 							});
 
 							$scope.sendMessage = function() {
@@ -252,8 +242,10 @@ app
 								$http.post('/users/add', $scope.newuser).then(
 										function() {
 											alert("User Added Successfully!");
+											$scope.updateParticipants();
 											$scope.window = 'PARTICIPANTS';
 											$scope.newuser = {};
+											
 										},
 										function(error) {
 											alert("Failed to add user. "
@@ -282,4 +274,5 @@ app
 												});
 							};
 
+							$scope.updateParticipants();
 						} ]);
