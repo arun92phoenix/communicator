@@ -8,7 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
-import com.communicator.app.model.Message;
+import com.communicator.app.persistence.model.Message;
 import com.communicator.app.services.CommunicatorService;
 
 /**

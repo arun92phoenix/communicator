@@ -85,7 +85,7 @@
 						align="{{getAlignment(message.type)}}">
 						<div
 							ng-class="message.type=='unread'?'unread-notification':'chat-message'">
-							<span>{{message.message}}</span>
+							<span>{{message.messageBody}}</span>
 						</div>
 						<div class="chat-time">
 							<span>{{message.time | date:'shortTime'}}</span>

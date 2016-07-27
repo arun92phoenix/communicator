@@ -106,7 +106,7 @@ app
 
 							$scope.sendMessage = function() {
 								var message = {
-									'message' : $scope.message,
+									'messageBody' : $scope.message,
 									'type' : 'own'
 								};
 
