@@ -1,9 +1,7 @@
 package com.communicator.app;
 
-import org.h2.tools.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 /**
  * Starting point of the application.
@@ -25,16 +23,16 @@ public class CommunicatorApplication {
 	 * 
 	 * @return
 	 */
-	@Bean
-	Server h2Server() {
-		Server server = new Server();
-		try {
-			server.runTool("-tcp");
-			server.runTool("-tcpAllowOthers");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return server;
-
-	}
+//	@Bean
+//	Server h2Server() {
+//		Server server = new Server();
+//		try {
+//			server.runTool("-tcp");
+//			server.runTool("-tcpAllowOthers");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return server;
+//
+//	}
 }

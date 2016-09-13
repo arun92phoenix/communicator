@@ -4,17 +4,17 @@
 var isWindowActive = true;
 var isNotificationAvailable = false;
 
-window.onfocus = function() {
+window.onfocus = function () {
 	isWindowActive = true;
 }
 
-window.onblur = function() {
+window.onblur = function () {
 	isWindowActive = false;
 }
 
-var app = angular.module('Communicator', [ 'ngSanitize' ]);
+var app = angular.module('Communicator', ['ngSanitize']);
 
-app.service('Notifier', function() {
+app.service('Notifier', function () {
 
 	if (Notification) {
 		isNotificationAvailable = true;
@@ -23,17 +23,17 @@ app.service('Notifier', function() {
 	if (isNotificationAvailable && Notification.permission !== "granted")
 		Notification.requestPermission();
 
-	this.notify = function(from, message, closeHandler) {
+	this.notify = function (from, message, closeHandler) {
 		if (isWindowActive || !isNotificationAvailable) {
 			return;
 		}
 
 		if (Notification.permission == "granted") {
 			var notification = new Notification(from, {
-				body : message
+				body: message
 			});
 
-			notification.onclick = function() {
+			notification.onclick = function () {
 				closeHandler(from);
 				this.close();
 			};
@@ -41,238 +41,226 @@ app.service('Notifier', function() {
 	}
 });
 
-app.filter('highlight', function() {
-	return function(input, highlight) {
+app.filter('highlight', function () {
+	return function (input, highlight) {
 		var retStr = input;
 		if (highlight) {
-			retStr = input.replace(new RegExp(highlight, 'g'),
-					'<span class="highlight">' + highlight + '</span>');
+			retStr = input.replace(new RegExp(highlight, 'g'), '<span class="highlight">' + highlight + '</span>');
 		}
 
 		return retStr;
-
 	}
 });
 
-app
-		.controller(
-				'MainCtrl',
-				[
-						'$scope',
-						'Notifier',
-						'$timeout',
-						'$http',
-						function($scope, Notifier, $timeout, $http) {
-							var stompClient = Stomp.over(new SockJS(
-									'/communicate'));
+app.controller('MainCtrl', ['$scope', 'Notifier', '$timeout', '$http', function ($scope, Notifier, $timeout, $http) {
+	var stompClient = Stomp.over(new SockJS('/communicate'));
 
-							$scope.messages = {};
-							$scope.unreadCount = {};
-							$scope.participants = [];
-							$scope.unreadMessageNotifications = {};
-							$scope.window = 'PARTICIPANTS';
+	$scope.messages = {};
+	$scope.unreadCount = {};
+	$scope.participants = [];
+	$scope.unreadMessageNotifications = {};
+	$scope.window = 'PARTICIPANTS';
 
-							var messagesBox = document
-									.getElementById('messages-box');
+	$scope.updateParticipants = function () {
+		$http.get('/users/list')
+			.then(function (data) {
+				$scope.participants = data.data;
+			},
+			function (error) {
+				alert("Failed to get participant list. " + error.data.message);
+			});
+	}
 
-							$scope.updateParticipants = function() {
-								$http
-										.get('/users/list')
-										.then(
-												function(data) {
-													$scope.participants = data.data;
-												},
-												function(error) {
-													alert("Failed to get participant list. "
-															+ error.data.message);
-												});
-							}
+	stompClient.connect({}, function () {
+		stompClient.subscribe('/user/receive',
+			function (message) {
+				message = JSON.parse(message.body);
 
-							stompClient.connect({}, function() {
-								stompClient.subscribe('/user/receive',
-										function(message) {
-											message = JSON.parse(message.body);
+				Notifier.notify(message.messageFrom, message.messageBody, $scope.showChat);
+				$scope.$evalAsync(function () {
+					$scope.addToMessages(message, message.messageFrom);
+				});
+			});
 
-											Notifier.notify(message.from,
-													message.message,
-													$scope.showChat);
-											$scope.$evalAsync(function() {
-												$scope.addToMessages(message,
-														message.from);
-											});
-										});
+	});
 
-							});
+	$scope.sendMessage = function () {
+		var message = {
+			'messageBody': $scope.message,
+			'messageTo' : $scope.selectedParticipant
+		};
 
-							$scope.sendMessage = function() {
-								var message = {
-									'messageBody' : $scope.message,
-									'type' : 'own'
-								};
+		stompClient.send('/send.to.' + $scope.selectedParticipant, {}, JSON.stringify(message));
 
-								stompClient.send('/send.to.'
-										+ $scope.selectedParticipant, {}, JSON
-										.stringify(message));
+		$scope.addToMessages(message, $scope.selectedParticipant)
+		$scope.message = '';
+		$scope.removeUnreadNotification($scope.selectedParticipant);
+	}
 
-								$scope.addToMessages(message,
-										$scope.selectedParticipant)
-								$scope.message = '';
-								$scope
-										.removeUnreadNotification($scope.selectedParticipant);
-							}
+	$scope.getMessages = function (last) {
+		$http.get('/messages/' + $scope.selectedParticipant + '?last=' + last)
+			.then(function (data) {
+				if($scope.messages[$scope.selectedParticipant]){
+					$scope.messages[$scope.selectedParticipant] = data.data.content.reverse().concat($scope.messages[$scope.selectedParticipant]);
+					var tempScrollTop = document.getElementById('messages-box').scrollHeight;
+					$timeout(function () {
+						$('#messages-box').scrollTop(document.getElementById('messages-box').scrollHeight - tempScrollTop);
+					});
+				} else {
+					$scope.messages[$scope.selectedParticipant] = data.data.content.reverse();
+					
+					$timeout(function () {
+						$('#chat-input').focus();
+						$scope.scrollToEnd();
+					});
+				}
+			});
+	}
 
-							$scope.showChat = function(participant) {
-								$scope.selectedParticipant = participant;
-								$scope.unreadCount[participant] = 0;
-								$scope.scrollToEnd();
-								$timeout(function() {
-									document.getElementById('chat-input')
-											.focus();
-								});
+	$scope.showChat = function (participant) {
+		debugger;
+		$scope.selectedParticipant = participant;
 
-								$timeout(function() {
-									$scope.clearUnreadMessage(participant);
-								}, 5000);
+		if ($scope.messages[participant] == null
+			|| $scope.messages[participant].length == 0) {
+			$scope.getMessages(0);
+		}
 
-							}
+		$scope.unreadCount[participant] = 0;
 
-							$scope.scrollToEnd = function() {
-								$timeout(function() {
-									messagesBox.scrollTop = messagesBox.scrollHeight;
-								});
-							};
+		$timeout(function () {
+			$scope.clearUnreadMessage(participant);
+		}, 5000);
+	}
 
-							$scope.addToMessages = function(message,
-									participant) {
+	$scope.scrollToEnd = function () {
+		$timeout(function () {
+			$('#messages-box').scrollTop(document.getElementById('messages-box').scrollHeight);
+		});
+	};
 
-								// Addding the message to the list
-								message.time = new Date();
-								if (!$scope.messages[participant]) {
-									$scope.messages[participant] = [];
-								}
+	$scope.addToMessages = function (message, participant) {
+		// Addding the message to the list
+		message.messageTime = new Date();
+		if (!$scope.messages[participant]) {
+			$scope.messages[participant] = [];
+		}
 
-								// Moving the message to the top
-								$scope.participants.splice($scope.participants
-										.indexOf(participant), 1);
-								$scope.participants.unshift(participant);
+		// Moving the message to the top
+		$scope.participants.splice($scope.participants.indexOf(participant), 1);
+		$scope.participants.unshift(participant);
 
-								// Updating the unread count
-								if ($scope.selectedParticipant != participant
-										|| !isWindowActive) {
+		// Updating the unread count
+		if ($scope.selectedParticipant != participant || !isWindowActive) {
 
-									if (!$scope.unreadCount[participant]) {
-										$scope.unreadCount[participant] = 0;
-									}
+			if (!$scope.unreadCount[participant]) {
+				$scope.unreadCount[participant] = 0;
+			}
 
-									$scope.unreadCount[participant]++;
+			$scope.unreadCount[participant]++;
 
-									if ($scope.unreadMessageNotifications[participant] == null) {
-										$scope.messages[participant].push({
-											type : 'unread',
-											message : 'Unread Messages'
-										});
+			if ($scope.unreadMessageNotifications[participant] == null) {
+				$scope.messages[participant].push({
+					type: 'unread',
+					messageBody: 'Unread Messages'
+				});
 
-										$scope.unreadMessageNotifications[participant] = $scope.messages[participant].length - 1;
-										$scope.scrollToEnd();
-									}
+				$scope.unreadMessageNotifications[participant] = $scope.messages[participant].length - 1;
+				$scope.scrollToEnd();
+			}
 
-								}
+		}
 
-								$scope.messages[participant].push(message);
+		$scope.messages[participant].push(message);
 
-								if ($scope.selectedParticipant == participant
-										&& isWindowActive) {
-									$scope.scrollToEnd();
-								}
+		if ($scope.selectedParticipant == participant && isWindowActive) {
+			$scope.scrollToEnd();
+		}
 
-							}
+	}
 
-							$scope.$watch('unreadCount', function(n) {
-								var totalUnreadCount = 0;
-								for (p in n) {
-									totalUnreadCount = totalUnreadCount
-											+ $scope.unreadCount[p];
-								}
+	$scope.$watch('unreadCount', function (n) {
+		var totalUnreadCount = 0;
+		for (p in n) {
+			totalUnreadCount = totalUnreadCount + $scope.unreadCount[p];
+		}
 
-								if (totalUnreadCount != 0) {
-									document.title = '(' + totalUnreadCount
-											+ ') Communicator';
-								} else {
-									document.title = 'Communicator';
-								}
-							}, true);
+		if (totalUnreadCount != 0) {
+			document.title = '(' + totalUnreadCount + ') Communicator';
+		} else {
+			document.title = 'Communicator';
+		}
+	}, true);
 
-							$scope.getAlignment = function(type) {
+	$scope.getAlignment = function (message) {
 
-								switch (type) {
-								case 'own':
-									return 'right';
-								case 'unread':
-									return 'center';
-								default:
-									return '';
-								}
-							}
+		if(message.type=='unread'){
+			return 'center';
+		} else if(message.messageTo==$scope.selectedParticipant){
+			return 'right';
+		} else {
+			return '';
+		}
+	}
 
-							$scope.clearUnreadMessage = function(o) {
-								if ($scope.unreadMessageNotifications[o] != null
-										&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
-									$scope.messages[o]
-											.splice(
-													$scope.unreadMessageNotifications[o],
-													1);
-									delete $scope.unreadMessageNotifications[o];
-								}
-							}
+	$scope.clearUnreadMessage = function (o) {
+		if ($scope.unreadMessageNotifications[o] != null
+			&& $scope.messages[o].length > $scope.unreadMessageNotifications[o]) {
+			$scope.messages[o].splice($scope.unreadMessageNotifications[o], 1);
+			delete $scope.unreadMessageNotifications[o];
+		}
+	}
 
-							$scope.$watch('selectedParticipant',
-									function(n, o) {
-										if (!o) {
-											return;
-										}
+	$scope.$watch('selectedParticipant', function (n, o) {
+		if (!o) {
+			return;
+		}
 
-										$scpoe.clearUnreadMessage(o);
-									});
+		$scope.clearUnreadMessage(o);
 
-							$scope.addParticipant = function() {
-								if ($scope.newuser.password != $scope.newuser.confirmPassword) {
-									alert('New Password and Confirm New Password should match!');
-									return;
-								}
-								$http.post('/users/add', $scope.newuser).then(
-										function() {
-											alert("User Added Successfully!");
-											$scope.updateParticipants();
-											$scope.window = 'PARTICIPANTS';
-											$scope.newuser = {};
-											
-										},
-										function(error) {
-											alert("Failed to add user. "
-													+ error.data.message);
-										});
-							};
+	});
 
-							$scope.changePassword = function() {
-								if ($scope.changepass.newPassword != $scope.changepass.confirmNewPassword) {
-									alert('New Password and Confirm New Password should match!');
-									return;
-								}
+	$scope.addParticipant = function () {
+		if ($scope.newuser.password != $scope.newuser.confirmPassword) {
+			alert('New Password and Confirm New Password should match!');
+			return;
+		}
+		$http.post('/users/add', $scope.newuser).then(
+			function () {
+				alert("User Added Successfully!");
+				$scope.updateParticipants();
+				$scope.window = 'PARTICIPANTS';
+				$scope.newuser = {};
 
-								$http
-										.post('/users/changepassword',
-												$scope.changepass)
-										.then(
-												function() {
-													alert("Password Changed Successfully!");
-													$scope.window = 'PARTICIPANTS';
-													$scope.newpass = {};
-												},
-												function(error) {
-													alert("Failed to change password. "
-															+ error.data.message);
-												});
-							};
+			},
+			function (error) {
+				alert("Failed to add user. " + error.data.message);
+			});
+	};
 
-							$scope.updateParticipants();
-						} ]);
+	$scope.changePassword = function () {
+		if ($scope.changepass.newPassword != $scope.changepass.confirmNewPassword) {
+			alert('New Password and Confirm New Password should match!');
+			return;
+		}
+
+		$http.post('/users/changepassword', $scope.changepass)
+			.then(function () {
+				alert("Password Changed Successfully!");
+				$scope.window = 'PARTICIPANTS';
+				$scope.newpass = {};
+			},
+			function (error) {
+				alert("Failed to change password. " + error.data.message);
+			});
+	};
+
+	$scope.updateParticipants();
+
+	$('#messages-box').scroll(function () {
+		var pos = $('#messages-box').scrollTop();
+		if (pos == 0 && $scope.messages[$scope.selectedParticipant]) {
+			$scope.getMessages($scope.messages[$scope.selectedParticipant][0].id);
+		}
+	});
+}]);

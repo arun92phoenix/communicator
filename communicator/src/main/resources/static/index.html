@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>Communicator</title>
-<link href="css/communicate.css" rel="stylesheet" type="text/css" />
+	<meta charset="UTF-8">
+	<title>Communicator</title>
+	<link href="css/communicate.css" rel="stylesheet" type="text/css" />
 </head>
+
 <body ng-app="Communicator">
 	<div ng-controller="MainCtrl">
 		<div class="main-container">
@@ -13,15 +15,11 @@
 					<a href="#" ng-click="window='CHANGE_PASSWORD'">Change Password</a>&nbsp;
 					<a href="/logout">Close</a>
 				</div>
-				<h2 class="participant-list-header"
-					ng-hide="window=='CHANGE_PASSWORD'">Participants</h2>
+				<h2 class="participant-list-header" ng-hide="window=='CHANGE_PASSWORD'">Participants</h2>
 				<div ng-show="window=='PARTICIPANTS'">
-					<input ng-model="participantFilter" class="participant-filter"
-						placeholder="Search Participants.." />
-					<div ng-repeat="participant in participants" class="participant"
-						ng-class="participant==selectedParticipant?'active':''"
-						ng-click="$parent.showChat(participant)"
-						ng-hide="participantFilter && participant.toLowerCase().indexOf(participantFilter.toLowerCase())==-1">
+					<input ng-model="participantFilter" class="participant-filter" placeholder="Search Participants.." />
+					<div ng-repeat="participant in participants" class="participant" ng-class="participant==selectedParticipant?'active':''"
+						ng-click="$parent.showChat(participant)" ng-hide="participantFilter && participant.toLowerCase().indexOf(participantFilter.toLowerCase())==-1">
 						<span ng-bind-html="participant | highlight:participantFilter"></span>
 						<div class="badge" ng-show="unreadCount[participant]>0">{{unreadCount[participant]}}</div>
 					</div>
@@ -35,16 +33,15 @@
 							<h4>Add New Participant</h4>
 						</div>
 						<div>
-							<input placeholder="Username" ng-model="newuser.username"
-								class="participant-filter" required="required" />
+							<input placeholder="Username" ng-model="newuser.username" class="participant-filter" required="required" />
 						</div>
 						<div>
-							<input placeholder="New Password" ng-model="newuser.password"
-								type="password" class="participant-filter" required="required" />
+							<input placeholder="New Password" ng-model="newuser.password" type="password" class="participant-filter" required="required"
+							/>
 						</div>
 						<div>
-							<input placeholder="Confirm New Password" ng-model="newuser.confirmPassword"
-								type="password" class="participant-filter" required="required" />
+							<input placeholder="Confirm New Password" ng-model="newuser.confirmPassword" type="password" class="participant-filter" required="required"
+							/>
 						</div>
 						<br />
 						<div>
@@ -59,16 +56,16 @@
 							<h4>Change Password</h4>
 						</div>
 						<div>
-							<input placeholder="Old Password" ng-model="changepass.oldPassword"
-								type="password" class="participant-filter" required="required" />
+							<input placeholder="Old Password" ng-model="changepass.oldPassword" type="password" class="participant-filter" required="required"
+							/>
 						</div>
 						<div>
-							<input placeholder="Password" ng-model="changepass.newPassword"
-								type="password" class="participant-filter" required="required" />
+							<input placeholder="Password" ng-model="changepass.newPassword" type="password" class="participant-filter" required="required"
+							/>
 						</div>
 						<div>
-							<input placeholder="Confirm New Password" ng-model="changepass.confirmNewPassword"
-								type="password" class="participant-filter" required="required" />
+							<input placeholder="Confirm New Password" ng-model="changepass.confirmNewPassword" type="password" class="participant-filter"
+								required="required" />
 						</div>
 						<br />
 						<div>
@@ -81,32 +78,27 @@
 			<div class="chat-container" ng-show="selectedParticipant" ng-cloak>
 				<h2 class="participant-list-header">{{selectedParticipant}}</h2>
 				<div class="chat-messages" id="messages-box">
-					<div ng-repeat="message in messages[selectedParticipant]"
-						align="{{getAlignment(message.type)}}">
-						<div
-							ng-class="message.type=='unread'?'unread-notification':'chat-message'">
+					<div ng-repeat="message in messages[selectedParticipant]" align="{{getAlignment(message)}}">
+						<div ng-class="message.type=='unread'?'unread-notification':'chat-message'">
 							<span>{{message.messageBody}}</span>
 						</div>
 						<div class="chat-time">
-							<span>{{message.time | date:'shortTime'}}</span>
+							<span>{{message.messageTime | date:'medium'}}</span>
 						</div>
 					</div>
 				</div>
 				<div class="chat-input">
 					<form ng-submit="sendMessage()">
-						<input type="text" ng-model="message" class="input-box"
-							id="chat-input" placeholder="Type your message"
-							autocomplete="off" autofocus="autofocus"></input>
-						<button type="submit" class="submit-btn"
-							ng-disabled="!message || message==''" style="display: none">Send!</button>
+						<input type="text" ng-model="message" class="input-box" id="chat-input" placeholder="Type your message" autocomplete="off"
+							autofocus="autofocus"></input>
+						<button type="submit" class="submit-btn" ng-disabled="!message || message==''" style="display: none">Send!</button>
 					</form>
 				</div>
 			</div>
 			<div class="chat-container" ng-hide="selectedParticipant">
 				<div class="no-selection-message">
 					<span>Select a participant on the left to begin conversing!</span><br />
-					<br /> <br /> <span>You can even talk to yourself if you
-						are bored!</span>
+
 				</div>
 			</div>
 		</div>
@@ -115,6 +107,7 @@
 	<script src="lib/angular/angular-sanitize.min.js"></script>
 	<script src="lib/sockjs/sockjs.min.js"></script>
 	<script src="lib/stomp/stomp.min.js"></script>
+	<script src="lib/jquery/jquery-3.1.0.min.js"></script>
 	<script src="js/communicate.js"></script>
 
 </body>
